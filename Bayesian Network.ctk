@@ -1,0 +1,890 @@
+<Task revision="1" schemaVersion="7.3">
+    <Registration>
+        <Name>Bayesian Network.ctk</Name>
+        <Description>The Bayesian Network task trains a predictive model of a nominal target using different types of Bayesian network structures, including naive, tree-augmented naive, Bayesian network-augmented naive, parent-child Bayesian network, and Markov blanket. Automatic selection of the best parameters using a validation data subset is available.</Description>
+        <GUID>2351ea05-e71f-4fb2-879b-7821e4ed3067</GUID>
+        <Procedures>BNET</Procedures>
+        <Links>
+            <Link href="https://documentation.sas.com/?softwareId=STUDIOBASIC&amp;softwareVersion=01&amp;softwareContextId=tasks&amp;requestor=inapp">SAS Studio Task Reference Guide</Link>            
+            <Link href=""> </Link>
+            <Link href=""> </Link>
+            <Link href="https://documentation.sas.com/?softwareId=ANVIYA&amp;softwareVersion=01&amp;softwareContextId=proc_bnet&amp;requestor=inapp">The BNET Procedure</Link>
+            <Link href=""> </Link>
+            <Link href=""> </Link>
+            <Link href="http://support.sas.com/training/viyasdmml">SAS Tutorials</Link>
+        </Links>
+    </Registration>
+    <Metadata>
+        <DataSources>
+            <DataSource libraryEngineInclude="CAS" name="dataset" where="true">
+                <Roles>
+                <Role exclude="intervalInputs,nominalInputs,byVariables,partitionVariable,freqVariable" maxVars="1" minVars="1" name="nominalTarget" type="A">Nominal target:</Role>
+                <Role exclude="nominalTarget,nominalInputs,byVariables,partitionVariable,freqVariable" maxVars="0" minVars="0" name="intervalInputs" order="true" type="N">Interval inputs:</Role>
+                <Role exclude="nominalTarget,intervalInputs,byVariables,partitionVariable,freqVariable" maxVars="0" minVars="0" name="nominalInputs" order="true" type="A">Nominal inputs:</Role>
+                <Role exclude="nominalTarget,nominalInputs,intervalInputs,partitionVariable,byVariables" maxVars="1" minVars="0" name="freqVariable" type="N">Frequency count:</Role>
+                <Role exclude="nominalTarget,nominalInputs,intervalInputs,partitionVariable,freqVariable" maxVars="0" minVars="0" name="byVariables" order="true" type="A">Group analysis by:</Role>
+                <Role exclude="nominalTarget,nominalInputs,intervalInputs,byVariables,freqVariable" indent="1" maxVars="1" minVars="1" name="partitionVariable" type="A">Partitioning variable:</Role>
+                <Role exclude="nominalTarget" indent="2" maxVars="0" minVars="1" name="copyVariables" order="true" type="A">Variables to include:</Role>
+                </Roles>
+            </DataSource>
+        </DataSources>
+
+        <Options>
+            <Option inputType="string" name="dataTab">Data</Option> 
+            <Option inputType="string" name="optionsTab">Options</Option> 
+            <Option inputType="string" name="dataGroup">Data</Option> 
+            <Option inputType="string" name="rolesGroup">Roles</Option> 
+            <Option inputType="string" name="otherRolesGroup">Additional Roles</Option> 
+            <Option inputType="string" name="targetGroup">Target</Option> 
+            <Option inputType="string" name="inputsGroup">Inputs</Option> 
+
+            <Option inputType="string" name="partitionGroup">Partition Data</Option>
+            <Option inputType="string" name="inputDataLabel">Input data contains training data. Include:</Option>
+            <Option inputType="checkbox" name="testDataChoice">Test data</Option>
+            <Option inputType="checkbox" name="validationDataChoice">Validation data</Option>
+            <Option indent="1" inputType="numbertext" invalidMessage="Enter a value greater than 0 and less than 1 for the proportion of training data observations in the data set" maxValue="0.9999999999" minValue="0.0000000001" missingMessage="Enter a value greater than 0 and less than 1 for the proportion of training data observations in the data set" name="trainingDataFraction" promptMessage="Enter a value greater than 0 and less than 1 for the proportion of training data observations in the data set" rangeMessage="Enter a value greater than 0 and less than 1 for the proportion of training data observations in the data set" required="true" width="100px">Proportion of training cases:</Option>
+            <Option indent="1" inputType="numbertext" invalidMessage="Enter a value greater than 0 and less than 1 for the proportion of test data observations in the data set" maxValue="0.9999999999" minValue="0.0000000001" missingMessage="Enter a value greater than 0 and less than 1 for the proportion of test data observations in the data set" name="testDataFraction" promptMessage="Enter a value greater than 0 and less than 1 for the proportion of test data observations in the data set" rangeMessage="Enter a value greater than 0 and less than 1 for the proportion of test data observations in the data set" required="true" width="100px">Proportion of testing cases:</Option>
+
+            <Option indent="1" inputType="numbertext" invalidMessage="Enter a value greater than 0 and less than 1 for the proportion of validation data observations in the data set" maxValue="0.9999999999" minValue="0.0000000001" missingMessage="Enter a value greater than 0 and less than 1 for the proportion of validation data observations in the data set" name="validationDataFraction" promptMessage="Enter a value greater than 0 and less than 1 for the proportion of validation data observations in the data set" rangeMessage="Enter a value greater than 0 and less than 1 for the proportion of validation data observations in the data set" required="true" width="100px">Proportion of validation cases:</Option>
+            
+            <Option defaultValue="0" inputType="checkbox" name="usePartitionRandomSeed">Random number seed</Option>
+            <Option decimalPlaces="0" indent="1" inputType="numbertext" invalidMessage="Enter an integer greater than 0 and less than 2,147,483,648 for the random seed" maxValue="2147483647" minValue="1" missingMessage="Enter an integer greater than 0 and less than 2,147,483,648 for the random seed" name="partitionRandomSeed" promptMessage="Enter an integer greater than 0 and less than 2,147,483,648 for the random seed" rangeMessage="Enter an integer greater than 0 and less than 2,147,483,648 for the random seed" required="true" width="100px">Random seed:</Option>
+            <Option indent="1" inputType="string" name="partitionRandomSeedNote">Specifying a random number seed may not replicate results in a distributed computing environment.</Option>
+
+            <Option defaultValue="partitionDataFractionChoice" inputType="combobox" name="partitionDataCombo">Identify partitions:</Option>
+            <Option inputType="string" name="partitionDataFractionChoice">Specify a sample proportion</Option>
+            <Option inputType="string" name="partitionDataVariableChoice">Choose a value of a partitioning variable</Option>
+
+            <Option indent="2" inputType="distinct" name="validationLevelCombo" required="true" source="partitionVariable">Validation data value:</Option>
+            <Option indent="2" inputType="checkbox" name="useTrainingLevel">Select training data value</Option>
+            <Option indent="2" inputType="distinct" name="trainingLevelCombo" required="true" source="partitionVariable">Training data value:</Option>
+
+            <!--Option name="responseOrder" indent="1" inputType="combobox" defaultValue="descendingChoice" nlsKey="responseOrderKey.txt">Response order: </Option>
+            <Option name="ascendingChoice"    inputType="string" nlsKey="ascendingChoiceKey.txt">Ascending values</Option>
+            <Option name="descendingChoice"   inputType="string" nlsKey="descendingChoiceKey.txt">Descending values</Option>
+
+            <Option name="responseOrderType" indent="1" inputType="combobox" defaultValue="formattedChoice" nlsKey="responseOrderTypeKey.txt">Response values: </Option>
+            <Option name="formattedChoice"   inputType="string" nlsKey="formattedChoiceKey.txt">Order by formatted values</Option>
+            <Option name="unformattedChoice" inputType="string" nlsKey="unformattedChoiceKey.txt">Order by unformatted values</Option-->
+
+            <Option inputType="string" name="methodsGroup">Methods</Option>
+            <Option inputType="string" name="dataPrepGroup">Data Preparation</Option>
+            <Option decimalPlaces="0" defaultValue="5" increment="1" inputType="numstepper" invalidMessage="Enter an integer greater than 1 and not greater than 1024 for the number of bins for interval inputs" maxValue="1024" minValue="2" missingMessage="Enter an integer greater than 1 and not greater than 1024 for the number of bins for interval inputs" name="intervalBins" promptMessage="Enter an integer greater than 1 and not greater than 1024 for the number of bins for interval inputs" rangeMessage="Enter an integer greater than 1 and not greater than 1024 for the number of bins for interval inputs" required="true" width="75px">Number of bins for interval inputs:</Option>
+
+            <Option defaultValue="ignoreChoice" inputType="combobox" name="intervalMissingCombo">Missing values for interval inputs:</Option>
+            <Option defaultValue="ignoreChoice" inputType="combobox" name="nominalMissingCombo">Missing values for nominal inputs:</Option>
+            <Option inputType="string" name="ignoreChoice">Ignore observations with missing values (default)</Option>    
+            <Option inputType="string" name="imputeMeanChoice">Replace missing values with the mean of the input</Option>    
+            <Option inputType="string" name="imputeModeChoice">Replace missing values with the mode of the input</Option>    
+            <Option inputType="string" name="levelChoice">Treat missing value as a level</Option>    
+
+            <Option inputType="string" name="networkGroup">Bayesian Network</Option>
+
+            <Option inputType="checkbox" name="bestModel">Select the best model</Option>    
+            <Option inputType="string" name="prescreenLabel">Screen inputs:</Option>    
+            <Option inputType="radio" name="useAllRadio" variable="prescreen">Use all inputs</Option>    
+            <Option defaultValue="1" inputType="radio" name="useDependentRadio" variable="prescreen">Use inputs dependent on target (default)</Option>    
+            <Option defaultValue="useDependentChoice" inputType="dualselector" name="screeningSelector" required="true">Screen inputs:</Option>
+            <Option inputType="string" name="useAllChoice" returnValue="useAllChoice">Use all inputs</Option>    
+            <Option inputType="string" name="useDependentChoice" returnValue="useDependentChoice">Use inputs dependent on target (default)</Option>    
+
+            <Option defaultValue="pcChoice" inputType="combobox" name="structureCombo">Structure network:</Option>
+            <Option defaultValue="pcChoice" inputType="dualselector" name="structureSelector" required="true">Structure networks:</Option>
+            <Option inputType="string" name="mbChoice" returnValue="mbChoice">Markov blanket</Option>    
+            <Option inputType="string" name="naiveChoice" returnValue="naiveChoice">Naive Bayesian network</Option>    
+            <Option inputType="string" name="pcChoice" returnValue="pcChoice">Parent-child  Bayesian network (default)</Option>    
+            <Option inputType="string" name="tanChoice" returnValue="tanChoice">Tree-augmented naive Bayesian network</Option>    
+
+            <Option decimalPlaces="0" defaultValue="5" increment="1" inputType="numstepper" invalidMessage="Enter an integer between 1 and 16, inclusive for the maximum number of parents per node" maxValue="16" minValue="1" missingMessage="Enter an integer between 1 and 16, inclusive for the maximum number of parents per node" name="maxParents" promptMessage="Enter an integer between 1 and 16, inclusive for the maximum number of parents per node" rangeMessage="Enter an integer between 1 and 16, inclusive for the maximum number of parents per node" required="true" width="75px">Maximum number of parents per node:</Option>
+
+            <Option inputType="string" name="parentingLabel">Determine the parents of the nodes:</Option>
+            <Option inputType="radio" name="bestOneRadio" variable="parentingAlgorithm">Use the best variable</Option>
+            <Option defaultValue="1" inputType="radio" name="bestSetRadio" variable="parentingAlgorithm">Use the best set of variables (default)</Option>
+            <Option defaultValue="bestSetChoice" inputType="dualselector" name="parentingSelector" required="true">Determine the parents of the nodes:</Option>
+            <Option inputType="string" name="bestOneChoice" returnValue="bestOneChoice">Use the best variable</Option>
+            <Option inputType="string" name="bestSetChoice" returnValue="bestSetChoice">Use the best set of variables (default)</Option>
+            
+            <Option defaultValue="varselect1Choice" inputType="combobox" name="varselectCombo">Variable selection method:</Option>
+            <Option defaultValue="varselect1Choice" inputType="dualselector" name="varselectSelector" required="true">Variable selection methods:</Option>
+            <Option inputType="string" name="varselect0Choice" returnValue="varselect0Choice">Use all inputs after initial screening</Option>    
+            <Option inputType="string" name="varselect1Choice" returnValue="varselect1Choice">Use inputs that are dependent on the target given any other input (default)</Option>    
+            <Option inputType="string" name="varselect2Choice" returnValue="varselect2Choice">Use inputs that are dependent on the target given any subset of inputs</Option>    
+            <Option inputType="string" name="varselect3Choice" returnValue="varselect3Choice">Use inputs in the Markov blanket of the target</Option>    
+
+            <Option defaultValue="chiGsquareChoice" inputType="combobox" name="indepTestCombo">Independence tests:</Option>
+            <Option inputType="string" name="chisquareChoice">Chi-square statistic</Option>    
+            <Option inputType="string" name="gsquareChoice">G-square statistic</Option>    
+            <Option inputType="string" name="chiGsquareChoice">Chi-square and G-square statistics (default)</Option>    
+            <Option inputType="string" name="miChoice">Mutual information</Option>    
+            <Option inputType="string" name="allChoice">All tests</Option>    
+
+            <Option defaultValue="alpha_05" inputType="combobox" name="alpha" width="100px">Significance level:</Option>
+            <Option inputType="string" name="alpha_10">0.10</Option>
+            <Option inputType="string" name="alpha_05">0.05 (default)</Option>
+            <Option inputType="string" name="alpha_01">0.01</Option>
+            <Option inputType="string" name="alphaSpecify">Use custom value</Option>
+
+            <Option indent="1" inputType="numbertext" invalidMessage="Enter a number greater than zero and less than 1 for the significance level" maxValue="0.99999999999" minValue="0.00000000001" missingMessage="Enter a number greater than zero and less than 1 for the significance level" name="alphaValue" promptMessage="Enter a number greater than zero and less than 1 for the significance level" rangeMessage="Enter a number greater than zero and less than 1 for the significance level" required="true" width="100px">Custom significance level:</Option>
+                
+<!-- Interpretability plots -->
+            <Option inputType="string" name="interpretGroup">Interpretability Plots</Option>
+            <Option inputType="checkbox" name="pdPlot">Partial dependence plot</Option>
+            <Option helpMessageRef="iceplothelp" inputType="checkbox" name="icePlot">Individual conditional expectation plot</Option>
+            <Option inputType="string" name="iceplothelp">Only the first 200 plots are created.  For other plots, copy the PROC SGPLOT code and alter the WHERE statement.</Option>
+            <Option defaultValue="intervalPD" indent="1" inputType="combobox" name="pdCombo">Analysis variable type:</Option>
+            <Option inputType="string" name="intervalPD">Interval input</Option>
+            <Option inputType="string" name="nominalPD">Nominal input</Option>
+            <Option indent="2" inputType="combobox" name="pdPlotVar1" required="true" selectMessage="Select an interval input" sourceLink="intervalInputs">Variable:</Option>
+            <Option defaultValue="10" increment="1" indent="2" inputType="numstepper" invalidMessage="Enter a value between 2 and 100 inclusive" maxValue="100" minValue="2" missingMessage="Enter a value between 2 and 100 inclusive" name="pdBins" promptMessage="Enter a value between 2 and 100 inclusive" rangeMessage="Enter a value between 2 and 100 inclusive" required="true">Number of bins:</Option>
+            <Option indent="2" inputType="combobox" name="pdPlotVar2" required="true" selectMessage="Select a nominal input" sourceLink="nominalInputs">Variable:</Option> 
+            <Option defaultValue="10" increment="1" indent="2" inputType="numstepper" invalidMessage="Enter a value between 2 and 100 inclusive" maxValue="100" minValue="2" missingMessage="Enter a value between 2 and 100 inclusive" name="pdMaxlev" promptMessage="Enter a value between 2 and 100 inclusive" rangeMessage="Enter a value between 2 and 100 inclusive" required="true">Maximum number of levels:</Option>                     
+            <Option helpMessageRef="pdPlotValueMsg" indent="1" inputType="distinct" name="pdPlotValue" required="true" source="nominalTarget">Value for nominal target variable:</Option>
+            <Option inputType="string" name="pdPlotValueMsg">The level of interest for a nominal target variable must be specified</Option>
+            <Option inputType="string" name="pdPlotTitle">Partial Dependence:</Option>
+            <Option inputType="string" name="icePlotTitle">Individual Conditional Expectation:</Option>
+            <Option inputType="string" name="icePlotMsg">Only the first 200 observations will be plotted</Option>                
+
+            <Option inputType="string" name="outputTab">Output</Option>
+            <Option inputType="string" name="outputGroup">Output Data</Option>
+
+            <Option inputType="string" name="odsOutputLibrefNote">The following data sets must use a SAS libref:</Option>            
+            <Option inputType="string" name="casOutputLibrefNote">The following tables must use a CAS engine libref:</Option>
+
+            <Option inputType="checkbox" name="outPredDS">Save predicted probabilities</Option>
+            <Option defaultValue="" indent="1" inputType="outputdata" libraryEngineInclude="cas" name="outPredDSName" required="true" unique="true">Specify a CAS table:</Option>
+  
+            <Option indent="1" inputType="checkbox" name="role">Partition identifier</Option>
+
+            <Option indent="1" inputType="string" name="includeVarsInstruction">Include variables from the input data set:</Option>
+            <Option indent="1" inputType="radio" name="includeAllVars" variable="includeVars">All variables</Option>
+            <Option indent="1" inputType="radio" name="includeSelectedVars" variable="includeVars">Selected variables</Option>
+            <Option indent="1" inputType="radio" name="includeAnalysisVars" variable="includeVars">Variables used in the analysis</Option>
+            <Option defaultValue="1" indent="1" inputType="radio" name="includeNoVars" variable="includeVars">No variables</Option>
+
+            <Option inputType="checkbox" name="outFitDS">Save fit statistics</Option>
+            <Option defaultValue="work._fitstats_" indent="1" inputType="outputdata" libraryEngineInclude="v9" name="outFitDSName" required="true" unique="true">Specify a SAS data set:</Option>
+
+            <Option inputType="checkbox" name="outNetworkDS">Save network structure</Option>
+            <Option defaultValue="work._netstruct_" indent="1" inputType="outputdata" libraryEngineInclude="v9" name="outNetworkDSName" required="true" unique="true">Specify a SAS data set:</Option>
+
+            <!--Option name="outParamDS" inputType="checkbox" nlsKey="outParamDSKey.txt">Save model parameters</Option>
+            <Option name="outParamDSName" indent="1" inputType="outputdata" unique="true" defaultValue="" required="true"
+                libraryEngineInclude="v9"  nlsKey="outParamDSNameKey.txt">Specify a SAS data set:</Option-->
+
+            <Option inputType="checkbox" name="outValidinfoDS">Save validation results</Option>
+            <Option defaultValue="work._validation_" indent="1" inputType="outputdata" libraryEngineInclude="v9" name="outValidinfoDSName" required="true" unique="true">Specify a SAS data set:</Option>
+
+            <Option inputType="string" name="varInfoGroup">Variable Information</Option>
+            <Option inputType="checkbox" name="outVarinfoDS">Save variable information</Option>
+            <Option defaultValue="work._varinfo_" indent="1" inputType="outputdata" libraryEngineInclude="v9" name="outVarinfoDSName" required="true" unique="true">Specify a SAS data set:</Option>
+
+            <Option inputType="checkbox" name="outVarlevelDS">Save variable levels</Option>
+            <Option defaultValue="work._varlevels_" indent="1" inputType="outputdata" libraryEngineInclude="v9" name="outVarlevelDSName" required="true" unique="true">Specify a SAS data set:</Option>
+
+            <Option inputType="checkbox" name="outVarorderDS">Save variable order</Option>
+            <Option defaultValue="work._varorder_" indent="1" inputType="outputdata" libraryEngineInclude="v9" name="outVarorderDSName" required="true" unique="true">Specify a SAS data set:</Option>
+
+            <Option inputType="checkbox" name="outVarselectDS">Save variable selection information</Option>
+            <Option defaultValue="work._varselect_" indent="1" inputType="outputdata" libraryEngineInclude="v9" name="outVarselectDSName" required="true" unique="true">Specify a SAS data set:</Option>
+
+            <Option inputType="checkbox" name="outAstoreDS">Save scoring model</Option>
+            <Option indent="1" inputType="outputdata" libraryEngineInclude="CAS" name="outAstoreDSName" required="true" unique="true">Specify a CAS table:</Option>         
+
+            <Option inputType="string" name="scoreCodeFileNote">Specify a path name for the scoring code:</Option>
+            <Option inputType="checkbox" name="scoreCode">Save scoring code</Option>
+<!-- Note: The sasserverpath component is for internal use only -->
+            <Option defaultExtension="sas" defaultName="score" indent="1" inputType="sasserverpath" name="scoringCodeFileName"/>
+            <Option inputType="string" name="interpmsg">Note: This feature requires at least 2 input variables</Option>
+                
+
+        </Options>
+    </Metadata>
+
+    <UI>
+        <Container option="dataTab">
+            <Group open="true" option="dataGroup">
+                <DataItem data="dataset"/>
+
+                <Group open="true" option="partitionGroup">
+                    <OptionItem option="inputDataLabel"/>
+                    <OptionItem option="validationDataChoice"/>
+                    
+                    <OptionChoice option="partitionDataCombo">
+                        <OptionItem option="partitionDataFractionChoice"/>
+                        <OptionItem option="partitionDataVariableChoice"/>
+                    </OptionChoice> 
+                    <RoleItem role="partitionVariable"/>
+                    
+                    <OptionChoice option="validationLevelCombo"/>
+                    <OptionItem option="useTrainingLevel"/>
+                    <OptionChoice option="trainingLevelCombo"/>
+<!--                    
+                    <OptionItem option="trainingDataFraction"/>
+-->
+                    <OptionItem option="validationDataFraction"/>
+                    
+                    <OptionItem option="usePartitionRandomSeed"/>
+                    <OptionItem option="partitionRandomSeed"/>
+                    <OptionItem option="partitionRandomSeedNote"/>
+                </Group>
+            </Group>
+            <Group open="true" option="rolesGroup">
+                <Group open="true" option="targetGroup">
+                    <RoleItem role="nominalTarget"/>
+                    <!--OptionChoice option="responseOrder">
+                        <OptionItem option="ascendingChoice"/>
+                        <OptionItem option="descendingChoice"/>
+                    </OptionChoice>
+                    <OptionChoice option="responseOrderType">
+                        <OptionItem option="formattedChoice"/>
+                        <OptionItem option="unformattedChoice"/>
+                    </OptionChoice-->
+
+                </Group>
+                <Group open="true" option="inputsGroup">
+                    <RoleItem role="intervalInputs"/>
+                    <RoleItem role="nominalInputs"/>
+                </Group>
+            </Group>
+            <Group option="otherRolesGroup">
+                <RoleItem role="freqVariable"/>
+            </Group>
+        </Container>
+
+        <Container option="optionsTab"> 
+            <Group open="true" option="methodsGroup">
+                <Group open="true" option="dataPrepGroup">
+                    <OptionItem option="intervalBins"/>
+
+                    <OptionChoice option="intervalMissingCombo">
+                        <OptionItem option="ignoreChoice"/>
+                        <OptionItem option="imputeMeanChoice"/>
+                    </OptionChoice>
+                    <OptionChoice option="nominalMissingCombo">
+                        <OptionItem option="ignoreChoice"/>
+                        <OptionItem option="imputeModeChoice"/>
+                        <OptionItem option="levelChoice"/>                 
+                    </OptionChoice>
+                </Group>
+                
+                <Group open="true" option="networkGroup">
+                    <OptionItem option="bestModel"/>
+                
+                    <OptionItem option="prescreenLabel"/>
+                    <OptionItem option="useAllRadio"/>
+                    <OptionItem option="useDependentRadio"/>
+                    <OptionChoice option="screeningSelector">
+                        <OptionItem option="useAllChoice"/>
+                        <OptionItem option="useDependentChoice"/>
+                    </OptionChoice>
+                
+                <OptionChoice option="structureCombo">
+                    <OptionItem option="mbChoice"/>
+                    <OptionItem option="naiveChoice"/>
+                    <OptionItem option="pcChoice"/>
+                    <OptionItem option="tanChoice"/>
+                </OptionChoice>/&gt;
+                <OptionChoice option="structureSelector">
+                    <OptionItem option="mbChoice"/>
+                    <OptionItem option="naiveChoice"/>
+                    <OptionItem option="pcChoice"/>
+                    <OptionItem option="tanChoice"/>
+                </OptionChoice>/&gt;
+                <OptionItem option="maxParents"/>
+
+                    <OptionItem option="parentingLabel"/>
+                    <OptionItem option="bestOneRadio"/>
+                    <OptionItem option="bestSetRadio"/>
+                    <OptionChoice option="parentingSelector">
+                        <OptionItem option="bestOneChoice"/>
+                        <OptionItem option="bestSetChoice"/>
+                    </OptionChoice>
+                    <OptionChoice option="varselectCombo">
+                        <OptionItem option="varselect0Choice"/>
+                        <OptionItem option="varselect1Choice"/>
+                        <OptionItem option="varselect2Choice"/>
+                        <OptionItem option="varselect3Choice"/>                
+                    </OptionChoice>
+                    <OptionChoice option="varselectSelector">
+                        <OptionItem option="varselect0Choice"/>
+                        <OptionItem option="varselect1Choice"/>
+                        <OptionItem option="varselect2Choice"/>
+                        <OptionItem option="varselect3Choice"/>                
+                    </OptionChoice>
+                    <OptionChoice option="indepTestCombo">
+                        <OptionItem option="chisquareChoice"/>
+                        <OptionItem option="gsquareChoice"/>
+                        <OptionItem option="chiGsquareChoice"/>
+                        <OptionItem option="miChoice"/>
+                        <OptionItem option="allChoice"/>
+                    </OptionChoice>/&gt;
+                    <OptionChoice option="alpha">
+                        <OptionItem option="alpha_10"/>
+                        <OptionItem option="alpha_05"/>
+                        <OptionItem option="alpha_01"/>
+                        <OptionItem option="alphaSpecify"/>
+                    </OptionChoice>
+                    <OptionItem option="alphaValue"/>
+                </Group>
+            </Group>
+            <Group open="true" option="interpretGroup">
+               <OptionItem option="interpmsg"/>
+               <OptionItem option="pdPlot"/>
+               <OptionItem option="icePlot"/> 
+               <OptionItem option="pdPlotValue"/>               
+               <OptionChoice option="pdCombo">
+                  <OptionItem option="intervalPD"/>
+                  <OptionItem option="nominalPD"/>
+               </OptionChoice>
+               <OptionItem option="pdPlotVar1"/>
+               <OptionItem option="pdBins"/>
+               <OptionItem option="pdPlotVar2"/>
+               <OptionItem option="pdMaxlev"/>
+            </Group>
+            
+        </Container>
+        
+        <Container option="outputTab">  
+            <Group open="true" option="outputGroup">                
+                <OptionItem option="casOutputLibrefNote"/>
+                
+                <OptionItem option="outPredDS"/>
+                <OptionItem option="outPredDSName"/>
+
+                <OptionItem option="includeVarsInstruction"/>
+                <OptionItem option="includeAllVars"/>
+                <OptionItem option="includeAnalysisVars"/>
+                <OptionItem option="includeNoVars"/>
+                <OptionItem option="includeSelectedVars"/>
+                <RoleItem role="copyVariables"/>
+
+                <OptionItem option="outAstoreDS"/>
+                <OptionItem option="outAstoreDSName"/>                
+ 
+                <OptionItem option="odsOutputLibrefNote"/> 
+                <OptionItem option="outNetworkDS"/>
+                <OptionItem option="outNetworkDSName"/>
+                
+                <OptionItem option="outFitDS"/>
+                <OptionItem option="outFitDSName"/>
+                
+                <!--OptionItem option="outParamDS"/>
+                <OptionItem option="outParamDSName"/-->
+                
+                <OptionItem option="outValidinfoDS"/>
+                <OptionItem option="outValidinfoDSName"/>
+                
+                <Group option="varInfoGroup">
+
+                <OptionItem option="outVarinfoDS"/>
+                <OptionItem option="outVarinfoDSName"/>
+
+                <OptionItem option="outVarlevelDS"/>
+                <OptionItem option="outVarlevelDSName"/>
+
+                <OptionItem option="outVarorderDS"/>
+                <OptionItem option="outVarorderDSName"/>
+
+                <OptionItem option="outVarselectDS"/>
+                <OptionItem option="outVarselectDSName"/>
+                
+                </Group>
+                
+                <OptionItem option="scoreCodeFileNote"/>
+                <OptionItem option="scoreCode"/>
+                <OptionItem option="scoringCodeFileName"/>
+              </Group>
+        </Container>
+    </UI>
+  
+    <Dependencies>
+ <!-- Dependencies whose targets are used in conditions of dependencies -->  
+ <!-- These dependencies must precede the dependencies that use one of these targets in a dependency condition -->
+
+        <Dependency condition="($validationDataChoice==1)">
+            <Target action="show" conditionResult="true" option="partitionDataCombo"/>
+            <Target action="hide" conditionResult="false" option="partitionDataCombo"/>
+        </Dependency>
+        <Dependency condition="($validationDataChoice==1 &amp;&amp;              $partitionDataCombo == 'partitionDataFractionChoice')">
+            <Target action="show" conditionResult="true" option="usePartitionRandomSeed"/>
+            <Target action="hide" conditionResult="false" option="usePartitionRandomSeed"/>
+        </Dependency>
+        <Dependency condition="($validationDataChoice==1 &amp;&amp; $partitionDataCombo == 'partitionDataVariableChoice')">
+            <Target action="show" conditionResult="true" option="partitionVariable"/>
+            <Target action="hide" conditionResult="false" option="partitionVariable"/>
+        </Dependency>
+        
+        <Dependency condition="($validationDataChoice==1 &amp;&amp;              $partitionDataCombo == 'partitionDataVariableChoice' &amp;&amp;              $partitionVariable.size() &gt; 0                       )">
+            <Target action="show" conditionResult="true" option="useTrainingLevel"/>
+            <Target action="hide" conditionResult="false" option="useTrainingLevel"/>
+        </Dependency>
+        
+        <Dependency condition="$validationDataChoice==1">
+            <Target action="show" conditionResult="true" option="bestModel"/>
+            <Target action="hide" conditionResult="false" option="bestModel"/>
+        </Dependency> 
+        
+        <Dependency condition="($outPredDS==1)">
+            <Target action="show" conditionResult="true" option="includeVars"/>
+            <Target action="hide" conditionResult="false" option="includeVars"/>
+        </Dependency>                
+
+ <!-- End of Dependencies whose targets are used in conditions of dependencies -->  
+
+        <Dependency condition="$validationDataChoice==1 &amp;&amp;              $partitionDataCombo == 'partitionDataFractionChoice' &amp;&amp;             $usePartitionRandomSeed == 1">
+            <Target action="show" conditionResult="true" option="partitionRandomSeed"/>
+            <Target action="hide" conditionResult="false" option="partitionRandomSeed"/>
+            <Target action="show" conditionResult="true" option="partitionRandomSeedNote"/>
+            <Target action="hide" conditionResult="false" option="partitionRandomSeedNote"/>
+        </Dependency> 
+        
+        <Dependency condition="($validationDataChoice==1 &amp;&amp; $partitionDataCombo == 'partitionDataFractionChoice')">
+            <Target action="show" conditionResult="true" option="validationDataFraction"/>
+            <Target action="hide" conditionResult="false" option="validationDataFraction"/>
+        </Dependency>
+        
+        <Dependency condition="($validationDataChoice==1 &amp;&amp;              $partitionDataCombo == 'partitionDataVariableChoice' &amp;&amp;              $partitionVariable.size() &gt; 0                       )">
+            <Target action="show" conditionResult="true" option="validationLevelCombo"/>
+            <Target action="hide" conditionResult="false" option="validationLevelCombo"/>
+        </Dependency>
+        
+        <Dependency condition="($validationDataChoice==1 &amp;&amp;              $partitionDataCombo == 'partitionDataVariableChoice' &amp;&amp;              $partitionVariable.size() &gt; 0  &amp;&amp;             $useTrainingLevel == 1                    )">
+            <Target action="show" conditionResult="true" option="trainingLevelCombo"/>
+            <Target action="hide" conditionResult="false" option="trainingLevelCombo"/>
+        </Dependency>
+        
+        <!--Dependency condition="($nominalTarget.size() > 0 &amp;&amp; !($nominalTarget.get(0).get('format') == ''))">
+            <Target option="responseOrderType" conditionResult="true"  action="show"/>
+            <Target option="responseOrderType" conditionResult="false" action="hide"/>
+        </Dependency-->
+
+        <Dependency condition="($intervalInputs.size() == 0 &amp;&amp; $nominalInputs.size() == 0) || $intervalInputs.size() &gt; 0">
+            <Target action="show" conditionResult="true" option="intervalBins"/>
+            <Target action="hide" conditionResult="false" option="intervalBins"/>
+            <Target action="show" conditionResult="true" option="intervalMissingCombo"/>
+            <Target action="hide" conditionResult="false" option="intervalMissingCombo"/>
+        </Dependency> 
+        <Dependency condition="($intervalInputs.size() == 0 &amp;&amp; $nominalInputs.size() == 0) ||$nominalInputs.size() &gt; 0">
+            <Target action="show" conditionResult="true" option="nominalMissingCombo"/>
+            <Target action="hide" conditionResult="false" option="nominalMissingCombo"/>
+        </Dependency> 
+        
+        <Dependency condition="$validationDataChoice==1 &amp;&amp; $bestModel == 1">
+            <Target action="show" conditionResult="true" option="screeningSelector"/>
+            <Target action="hide" conditionResult="false" option="screeningSelector"/>
+            <Target action="show" conditionResult="true" option="structureSelector"/>
+            <Target action="hide" conditionResult="false" option="structureSelector"/>
+            <Target action="show" conditionResult="true" option="parentingSelector"/>
+            <Target action="hide" conditionResult="false" option="parentingSelector"/>
+            <Target action="show" conditionResult="true" option="varselectSelector"/>
+            <Target action="hide" conditionResult="false" option="varselectSelector"/>
+        </Dependency> 
+        <Dependency condition="!($validationDataChoice==1 &amp;&amp; $bestModel == 1)">
+            <Target action="show" conditionResult="true" option="prescreenLabel"/>
+            <Target action="hide" conditionResult="false" option="prescreenLabel"/>
+            <Target action="show" conditionResult="true" option="prescreen"/>
+            <Target action="hide" conditionResult="false" option="prescreen"/>
+            <Target action="show" conditionResult="true" option="structureCombo"/>
+            <Target action="hide" conditionResult="false" option="structureCombo"/>
+            <Target action="show" conditionResult="true" option="varselectCombo"/>
+            <Target action="hide" conditionResult="false" option="varselectCombo"/>
+            <Target action="show" conditionResult="true" option="parentingLabel"/>
+            <Target action="hide" conditionResult="false" option="parentingLabel"/>
+            <Target action="show" conditionResult="true" option="parentingAlgorithm"/>
+            <Target action="hide" conditionResult="false" option="parentingAlgorithm"/>
+        </Dependency> 
+        
+        <Dependency condition="($alpha == 'alphaSpecify')">
+            <Target action="show" conditionResult="true" option="alphaValue"/>
+            <Target action="hide" conditionResult="false" option="alphaValue"/>
+        </Dependency>
+              
+        <Dependency condition="($outPredDS==1)">
+            <Target action="enable" conditionResult="true" option="outPredDSName"/>
+            <Target action="disable" conditionResult="false" option="outPredDSName"/>
+            <Target action="show" conditionResult="true" option="includeVarsInstruction"/>
+            <Target action="hide" conditionResult="false" option="includeVarsInstruction"/>
+        </Dependency>
+
+        <Dependency condition="($outPredDS==1 &amp;&amp; $includeVars=='includeSelectedVars')">
+            <Target action="show" conditionResult="true" option="copyVariables"/>
+            <Target action="hide" conditionResult="false" option="copyVariables"/>       
+        </Dependency>
+              
+        <Dependency condition="($outNetworkDS==1)">
+            <Target action="enable" conditionResult="true" option="outNetworkDSName"/>
+            <Target action="disable" conditionResult="false" option="outNetworkDSName"/>
+        </Dependency>
+              
+        <Dependency condition="($outFitDS==1)">
+            <Target action="enable" conditionResult="true" option="outFitDSName"/>
+            <Target action="disable" conditionResult="false" option="outFitDSName"/>
+        </Dependency>
+              
+        <!--Dependency condition="($outParamDS==1)">
+            <Target option="outParamDSName" conditionResult="true"  action="enable"/>
+            <Target option="outParamDSName" conditionResult="false" action="disable"/>
+        </Dependency-->
+
+<!-- The following two dependencies must appear in this order -->             
+        <Dependency condition="($validationDataChoice==1)">
+            <Target action="show" conditionResult="true" option="outValidinfoDS"/>
+            <Target action="hide" conditionResult="false" option="outValidinfoDS"/>
+            <Target action="show" conditionResult="true" option="outValidinfoDSName"/>
+            <Target action="hide" conditionResult="false" option="outValidinfoDSName"/>
+        </Dependency> 
+        <Dependency condition="($validationDataChoice==1 &amp;&amp; $outValidinfoDS==1)">
+            <Target action="enable" conditionResult="true" option="outValidinfoDSName"/>
+            <Target action="disable" conditionResult="false" option="outValidinfoDSName"/>
+        </Dependency>
+        <Dependency condition="($outVarinfoDS==1)">
+            <Target action="enable" conditionResult="true" option="outVarinfoDSName"/>
+            <Target action="disable" conditionResult="false" option="outVarinfoDSName"/>
+        </Dependency>
+        <Dependency condition="($outVarlevelDS==1)">
+            <Target action="enable" conditionResult="true" option="outVarlevelDSName"/>
+            <Target action="disable" conditionResult="false" option="outVarlevelDSName"/>
+        </Dependency>
+        <Dependency condition="($outVarorderDS==1)">
+            <Target action="enable" conditionResult="true" option="outVarorderDSName"/>
+            <Target action="disable" conditionResult="false" option="outVarorderDSName"/>
+        </Dependency>
+        <Dependency condition="($outVarselectDS==1)">
+            <Target action="enable" conditionResult="true" option="outVarselectDSName"/>
+            <Target action="disable" conditionResult="false" option="outVarselectDSName"/>
+        </Dependency>
+
+<!--         
+        <Dependency condition="($outPredDS==1 &amp;&amp; 
+            ($validationDataChoice==1 || $validationDataChoice==1) &amp;&amp; 
+            $partitionDataCombo == 'partitionDataFractionChoice')">
+            <Target option="role" conditionResult="true"  action="show"/>
+            <Target option="role" conditionResult="false" action="hide"/>       
+        </Dependency>
+-->       
+        <Dependency condition="($scoreCode==1)">
+            <Target action="enable" conditionResult="true" option="scoringCodeFileName"/>
+            <Target action="disable" conditionResult="false" option="scoringCodeFileName"/>
+         </Dependency>
+         
+        <Dependency condition="($outAstoreDS==1)">
+            <Target action="enable" conditionResult="true" option="outAstoreDSName"/>
+            <Target action="disable" conditionResult="false" option="outAstoreDSName"/>
+         </Dependency>
+         
+<!-- Interpretability plot dependencies -->        
+        <Dependency condition="($nominalInputs.size() + $intervalInputs.size()) &lt; 2">
+           <Target action="show" conditionResult="true" option="interpmsg"/>
+           <Target action="hide" conditionResult="false" option="interpmsg"/>
+           <Target action="disable" conditionResult="true" option="interpretGroup"/>
+           <Target action="enable" conditionResult="false" option="interpretGroup"/>
+        </Dependency>          
+        <Dependency condition="($pdPlot == 1 || $icePlot == 1) &amp;&amp; ($nominalInputs.size() + $intervalInputs.size() &gt; 1)">
+           <Target action="show" conditionResult="true" option="pdCombo"/>
+           <Target action="hide" conditionResult="false" option="pdCombo"/>
+        </Dependency> 
+        <Dependency condition="($pdPlot == 1 || $icePlot == 1) &amp;&amp; $intervalInputs.size() == 0 ">
+           <Target action="set" conditionResult="true" option="pdCombo" property="value" value="nominalPD"/>
+        </Dependency>  
+        <Dependency condition="($pdPlot == 1 || $icePlot == 1) &amp;&amp; $nominalInputs.size() == 0 ">
+           <Target action="set" conditionResult="true" option="pdCombo" property="value" value="intervalPD"/>
+        </Dependency>         
+        <Dependency condition="(($pdPlot == 1 || $icePlot == 1) &amp;&amp; $pdCombo == 'intervalPD' &amp;&amp; ($nominalInputs.size() + $intervalInputs.size() &gt; 1))">
+           <Target action="show" conditionResult="true" option="pdPlotVar1"/>
+           <Target action="hide" conditionResult="false" option="pdPlotVar1"/>
+           <Target action="show" conditionResult="true" option="pdBins"/>
+           <Target action="hide" conditionResult="false" option="pdBins"/>           
+        </Dependency>
+        <Dependency condition="($pdPlot == 1 || $icePlot == 1) &amp;&amp; $pdCombo == 'nominalPD' &amp;&amp; ($nominalInputs.size() + $intervalInputs.size() &gt; 1)">
+           <Target action="show" conditionResult="true" option="pdPlotVar2"/>
+           <Target action="hide" conditionResult="false" option="pdPlotVar2"/>
+           <Target action="show" conditionResult="true" option="pdMaxlev"/>
+           <Target action="hide" conditionResult="false" option="pdMaxlev"/>           
+        </Dependency>        
+        <Dependency condition="($pdPlot ==1 || $icePlot == 1) ">
+           <Target action="show" conditionResult="true" option="pdPlotValue"/>
+           <Target action="hide" conditionResult="false" option="pdPlotValue"/>
+        </Dependency>
+
+
+    </Dependencies>
+    
+    <Requirements> 
+        <Requirement condition="($intervalInputs.size() &gt; 0 || $nominalInputs.size() &gt; 0 )">
+            <Message>Select at least one interval or nominal input.</Message>
+        </Requirement>
+ 
+        <Requirement condition="(         !(             $validationDataChoice == 1 &amp;&amp;             $partitionDataCombo == 'partitionDataVariableChoice' &amp;&amp;             $partitionVariable.size() &gt; 0 &amp;&amp;             $useTrainingLevel == 1 &amp;&amp;              $validationLevelCombo == $trainingLevelCombo         ))">
+            <Message>The value of the partitioning variable must be different for training and validation cases.</Message>
+        </Requirement>
+
+    </Requirements>
+    
+    <CodeTemplate>
+        <![CDATA[
+ods noproctitle;
+
+#if ($scoreCode == 1)
+#if($scoringCodeFileName.pathLocation == "sascontent")
+filename sfile filesrvc folderpath=$CTMUtil.quoteString($scoringCodeFileName.path) filename=$CTMUtil.quoteString($scoringCodeFileName.name);
+filename tempfile temp; 
+#else
+filename sfile $CTMUtil.quoteString($scoringCodeFileName.fullPath);
+#end
+#end
+#set($needtmpcas = 0)
+#if ( ($pdPlot == 1 || $icePlot == 1) && ($outAstoreDS == 0))
+   #set($needtmpcas=1)
+#end
+
+#if ($needtmpcas == 1)
+libname _tmpcas_ cas caslib="CASUSER";
+#end
+
+proc bnet data=$dataset 
+#if ($intervalInputs.size() > 0)
+   #if (!($intervalBins == 5)) numbin=$intervalBins#end
+   #if ($intervalMissingCombo == 'imputeMeanChoice') missingint=impute#end
+#end
+#if ($nominalInputs.size() > 0)
+   #if ($nominalMissingCombo == 'imputeModeChoice') missingnom=impute
+   #elseif ($nominalMissingCombo == 'levelChoice') missingnom=level#end
+#end
+
+#if (!($indepTestCombo == 'chiGsquareChoice'))
+ indeptest=#if ($indepTestCombo == 'chisquareChoice')chisquare
+   #elseif ($indepTestCombo == 'gsquareChoice')gsquare
+   #elseif ($indepTestCombo == 'miChoice')mi
+   #elseif ($indepTestCombo == 'allChoice')all
+   #end
+#end
+#if(!($alpha=="alpha_05"))
+   #if($alpha=="alpha_05")#set($_alpha=.05)#elseif ($alpha=="alpha_01")#set($_alpha=.01)#elseif ($alpha=="alpha_10")#set($_alpha=.10) #else#set($_alpha=$alphaValue)#end
+   #if ($indepTestCombo == 'miChoice') mialpha=$_alpha
+   #elseif ($indepTestCombo == 'allChoice') alpha=$_alpha mialpha=$_alpha
+   #else alpha=$_alpha
+   #end
+#end
+
+#if ($validationDataChoice == 1 && $bestModel==1) 
+ bestModel
+ prescreening=#foreach( $item in $screeningSelector)#if($item == 'useAllChoice') 0#elseif($item == 'useDependentChoice') 1#end#end
+ varselect=#foreach( $item in $varselectSelector)#if($item == 'varselect0Choice') 0#elseif($item == 'varselect1Choice') 1#elseif($item == 'varselect2Choice') 2#elseif($item == 'varselect3Choice') 3#end#end
+ structure=#foreach( $item in $structureSelector)#if ($item == 'mbChoice') mb#elseif ($item == 'naiveChoice') naive#elseif ($item == 'pcChoice') pc#elseif ($item == 'tanChoice') tan#end#end
+ parenting=#foreach( $item in $parentingSelector)#if ($item == 'bestOneChoice') bestone#elseif ($item == 'bestSetChoice') bestset#end#end
+#else
+    #if (!($prescreen=='useOneRadio')) prescreening=0#end
+    #set($item=$varselectCombo)
+    #if (!($item == 'varselect1Choice')) varselect=#if($item == 'varselect0Choice')0#elseif($item == 'varselect1Choice')1#elseif($item == 'varselect2Choice')2#elseif($item == 'varselect3Choice')3#end#end
+    #set($item=$structureCombo)
+    #if (!($item == 'pcChoice')) structure=#if ($item == 'mbChoice') mb#elseif ($item == 'naiveChoice') naive#elseif ($item == 'pcChoice') pc#elseif ($item == 'tanChoice') tan#end#end
+    #if (!($parentingAlgorithm == 'bestSetRadio')) parenting=bestOne#end
+#end
+#if (!($maxParents == 5)) maxparents=$maxParents#end
+;
+
+#if ($dataset.getWhereClause() != '')
+   where $dataset.getWhereClause();
+#end
+
+## PARTITION THE DATA
+#if ($validationDataChoice == 1)
+   partition
+   #if($partitionDataCombo == 'partitionDataFractionChoice')
+ fraction(#if($validationDataChoice == 1) validate=$validationDataFraction#end
+      #if($usePartitionRandomSeed == 1) seed=$partitionRandomSeed#end
+   #elseif ($partitionDataCombo == 'partitionDataVariableChoice')
+ role=#foreach( $item in $partitionVariable ) $item #end(
+      #if($validationDataChoice == 1) validate=$CTMUtil.quoteString($validationLevelCombo)#end
+      #if($useTrainingLevel == 1) train=$CTMUtil.quoteString($trainingLevelCombo)#end
+   #end
+   );
+#end
+
+#if ($nominalTarget.size() > 0)
+   target #foreach( $item in $nominalTarget ) $item#end
+   #*
+   #if ($responseOrder)
+      #if ($responseOrderType && $responseOrderType == 'formattedChoice')
+         #if ($responseOrder == 'ascendingChoice') order=fmtdesc
+         #else order=fmtasc
+         #end
+      #else
+         #if ($responseOrder == 'ascendingChoice') / order=asc#end
+      #end
+   #end
+  *#   
+   ;
+#end
+
+#if ( $intervalInputs.size() > 0 )   
+   input #foreach( $item in $intervalInputs ) $item#end / level=interval; 
+#end
+
+#if ( $nominalInputs.size() > 0 )   
+   input #foreach( $item in $nominalInputs ) $item#end / level=nominal; 
+#end
+
+#if( $freqVariable.size() > 0 )
+   freq #foreach( $item in $freqVariable ) $item #end;
+#end
+
+#if ($outPredDS==1)
+   output out=$outPredDSName
+
+   #if ($includeVars=='includeAllVars') copyvars=(_all_)
+   #elseif ($includeVars=='includeSelectedVars')
+      #if ($copyVariables.size() > 0) 
+        copyvars=( #foreach( $item in $copyVariables ) $item#end)
+      #end
+   #elseif ($includeVars=='includeAnalysisVars')
+   ## Note: the target is already written to the prediction output table
+      #if (
+        $freqVariable.size() > 0 ||
+        $intervalInputs.size() > 0 || $nominalInputs.size() > 0 ||
+        ($validationDataChoice==1 && $partitionDataCombo == 'partitionDataVariableChoice' && $partitionVariable.size() > 0)
+        ) 
+ copyvars=(
+         #if ($intervalInputs.size() > 0)
+             #foreach( $item in $intervalInputs ) $item#end
+         #end
+         #if ($nominalInputs.size() > 0)
+             #foreach( $item in $nominalInputs ) $item#end
+         #end
+         #if ($freqVariable.size() > 0)
+            #foreach( $item in $freqVariable ) $item#end
+         #end
+         #if ($validationDataChoice==1 && $partitionDataCombo == 'partitionDataVariableChoice' && $partitionVariable.size() > 0)
+            #foreach( $item in $partitionVariable ) $item#end
+         #end
+ )
+       #end
+   #end
+;
+#end
+
+#if ($outFitDS == 1 || $outNetworkDS == 1 || $outParamDS == 1 || ($validationDataChoice==1 && $outValidinfoDS == 1) || $outVarinfoDS == 1 || $outVarlevelDS == 1 || $outVarorderDS == 1 || $outVarselectDS == 1)
+   ods output
+   #if ($outFitDS == 1) fitstatistics=$outFitDSName#end
+   #if ($outNetworkDS == 1) modelinfo=$outNetworkDSName#end
+   #if ($outParamDS == 1) parameter=$outParamDSName#end
+   #if ($validationDataChoice==1 && $outValidinfoDS == 1) validinfo=$outValidinfoDSName#end
+   #if ($outVarinfoDS == 1) varinfo=$outVarinfoDSName#end
+   #if ($outVarlevelDS == 1) varlevel=$outVarlevelDSName#end
+   #if ($outVarorderDS == 1) varorder=$outVarorderDSName#end
+   #if ($outVarselectDS == 1) varselect=$outVarselectDSName#end
+;
+#end
+
+#if ($scoreCode == 1)
+   code file=#if($scoringCodeFileName.pathLocation == "sascontent")tempfile#{else}sfile#end;
+#end
+
+#if ($outAstoreDS == 1)
+   savestate rstore=$outAstoreDSName;
+#end
+#if ($needtmpcas == 1)
+   savestate rstore = _tmpcas_._bnetModel_;
+#end
+
+
+#if( $byVariables.size() > 0 )
+   by #foreach( $item in $byVariables ) $item #end;
+#end
+
+run;
+
+#if ($pdPlot == 1 || $icePlot == 1)
+
+#foreach($item in $nominalTarget)
+   #set($tempvar = "$item.get('value')")
+   #set($predictedTarget = "p_$tempvar$pdPlotValue" )
+#end
+
+#if($pdCombo == 'intervalPD') #foreach($item in $pdPlotVar1) #set($pdPlotVar = $item.get('value')) #end #end
+#if($pdCombo == 'nominalPD')  #foreach($item in $pdPlotVar2) #set($pdPlotVar = $item.get('value')) #end #end
+
+#set($CASlibref = $dataset.getLibrary())
+#set($CASlib="%sysfunc(getlcaslib($CASlibref))")
+#if($scoreCode == 1)
+#set($outCASlibref = $scoringCodeFileName.getLibrary())
+#set($outCASlib = "%sysfunc(getlcaslib($outCASlibref))")
+#else
+#set($outCASlibref = "_tmpcas_")
+#set($outCASlib = "casuser")
+#end
+
+proc cas;
+   explainModel.partialDependence /
+      table={name=$CTMUtil.quoteString($dataset.get('table')), caslib=$CTMUtil.doubleQuoteString($CASlib)} modelTableType='ASTORE'
+      #if($outAstoreDS == 1) modelTable={name=$CTMUtil.quoteString($outAstoreDSName.get('table'))}#end
+      #if($needtmpcas == 1) modelTable = {name='_bnetModel_' caslib='casuser'}#end
+      inputs={#foreach($item in $nominalInputs)$CTMUtil.doubleQuoteString($item.get('value')) #end 
+         #foreach($item in $intervalInputs) $CTMUtil.doubleQuoteString($item.get('value')) #end}
+      analysisVariable={name=$CTMUtil.doubleQuoteString($pdPlotVar)
+      #if($pdCombo == 'intervalPD')nBins = $pdBins#end
+      #if($pdCombo == 'nominalPD')maxLevels = $pdMaxlev #end
+      }
+      predictedTarget=$CTMUtil.doubleQuoteString($predictedTarget)
+      outputTables = {replace=true, names={PARTIALDEPENDENCE={name="_partialdep_" caslib=$CTMUtil.doubleQuoteString($outCASlib)}}}
+      #if($icePlot == 1) output = {casout={name="_icedata_", caslib=$CTMUtil.doubleQuoteString($outCASlib), replace=true}, copyvars='ALL'}#end
+
+      ;
+run;
+quit; 
+
+#if($pdPlot == 1)
+#set($temptitle = "$pdPlotTitle $pdPlotVar")
+title $CTMUtil.doubleQuoteString($temptitle);
+proc sgplot data = ${outCASlibref}._partialdep_; 
+    series x = $CTMUtil.toSASName($pdPlotVar) y = MeanPrediction  ; 
+run; 
+#end 
+
+#if($icePlot == 1) 
+data _icedata_;
+   set ${outCASlibref}._icedata_;
+   retain _id_ 0;
+   if _bin_id_ = 1 then _id_ + 1;
+run;
+#set($temptitle = "$icePlotTitle $pdPlotVar")
+title $CTMUtil.doubleQuoteString($temptitle);
+/* $icePlotMsg */
+proc sgplot data = _icedata_;
+    where _id_ < 200; 
+    series x = $CTMUtil.toSASName($pdPlotVar) y = $CTMUtil.toSASName($predictedTarget) / group = _id_; 
+run;
+#end
+
+#end ##end of interpretability plots
+
+#if($needtmpcas == 1)
+#if($pdPlot == 1 || $icePlot == 1)
+proc delete data=_tmpcas_._bnetModel_;run;
+#end
+libname _tmpcas_;
+#end
+ 
+#if ($icePlot ==1)
+proc delete data=work._icedata_;
+#end 
+ 
+
+#if ($scoreCode == 1)
+#if($scoringCodeFileName.pathLocation == "sascontent")
+%let x=%sysfunc(fcopy(tempfile,sfile)); 
+%if &x %then %do; %put &x - %sysfunc(sysmsg()); %end;
+filename tempfile clear;
+#end
+filename sfile CLEAR;
+#end
+
+]]>
+    </CodeTemplate>
+<TemplateValues version="7.3">
+<![CDATA[
+{"dataset":{"librarytable":"CASLIB.HMEQ2"},"nominalTarget":"json:[{\"value\":\"BAD\",\"type\":\"Numeric\",\"length\":8,\"format\":\"BEST12.\",\"informat\":\"\",\"className\":\"RoleObject\"}]","intervalInputs":"json:[{\"value\":\"LOAN\",\"type\":\"Numeric\",\"length\":8,\"format\":\"BEST12.\",\"informat\":\"\",\"className\":\"RoleObject\"},{\"value\":\"MORTDUE\",\"type\":\"Numeric\",\"length\":8,\"format\":\"BEST12.\",\"informat\":\"\",\"className\":\"RoleObject\"},{\"value\":\"VALUE\",\"type\":\"Numeric\",\"length\":8,\"format\":\"BEST12.\",\"informat\":\"\",\"className\":\"RoleObject\"},{\"value\":\"YOJ\",\"type\":\"Numeric\",\"length\":8,\"format\":\"BEST12.\",\"informat\":\"\",\"className\":\"RoleObject\"},{\"value\":\"DEROG\",\"type\":\"Numeric\",\"length\":8,\"format\":\"BEST12.\",\"informat\":\"\",\"className\":\"RoleObject\"},{\"value\":\"DELINQ\",\"type\":\"Numeric\",\"length\":8,\"format\":\"BEST12.\",\"informat\":\"\",\"className\":\"RoleObject\"},{\"value\":\"CLAGE\",\"type\":\"Numeric\",\"length\":8,\"format\":\"BEST12.\",\"informat\":\"\",\"className\":\"RoleObject\"},{\"value\":\"NINQ\",\"type\":\"Numeric\",\"length\":8,\"format\":\"BEST12.\",\"informat\":\"\",\"className\":\"RoleObject\"},{\"value\":\"CLNO\",\"type\":\"Numeric\",\"length\":8,\"format\":\"BEST12.\",\"informat\":\"\",\"className\":\"RoleObject\"},{\"value\":\"DEBTINC\",\"type\":\"Numeric\",\"length\":8,\"format\":\"BEST12.\",\"informat\":\"\",\"className\":\"RoleObject\"}]","nominalInputs":"","freqVariable":"","partitionVariable":"","copyVariables":"","validationDataChoice":"1","validationDataFraction":0.1,"usePartitionRandomSeed":"1","partitionRandomSeed":42,"partitionDataCombo":[{"value":"partitionDataFractionChoice","displayValue":"Specify a sample proportion","keys":["partitionDataFractionChoice",null,"Specify a sample proportion"],"label":"Specify a sample proportion","baseid":"{\"value\":\"partitionDataFractionChoice\",\"label\":\"Specify a sample proportion\"}","id":"{\"value\":\"partitionDataFractionChoice\",\"label\":\"Specify a sample proportion\"}1"}],"useTrainingLevel":"0","intervalBins":5,"intervalMissingCombo":[{"value":"ignoreChoice","displayValue":"Ignore observations with missing values (default)","keys":["ignoreChoice",null,"Ignore observations with missing values (default)"],"label":"Ignore observations with missing values (default)","baseid":"{\"value\":\"ignoreChoice\",\"label\":\"Ignore observations with missing values (default)\"}","id":"{\"value\":\"ignoreChoice\",\"label\":\"Ignore observations with missing values (default)\"}1"}],"nominalMissingCombo":[{"value":"ignoreChoice","displayValue":"Ignore observations with missing values (default)","keys":["ignoreChoice",null,"Ignore observations with missing values (default)"],"label":"Ignore observations with missing values (default)","baseid":"{\"value\":\"ignoreChoice\",\"label\":\"Ignore observations with missing values (default)\"}","id":"{\"value\":\"ignoreChoice\",\"label\":\"Ignore observations with missing values (default)\"}1"}],"bestModel":"0","useAllRadio":"0","prescreen":"useDependentRadio","useDependentRadio":"1","screeningSelector":[{"value":"useDependentChoice","displayValue":"Use inputs dependent on target (default)","keys":["useDependentChoice","useDependentChoice","Use inputs dependent on target (default)"],"label":"Use inputs dependent on target (default)","baseid":"{\"value\":\"useDependentChoice\",\"label\":\"Use inputs dependent on target (default)\"}","id":"{\"value\":\"useDependentChoice\",\"label\":\"Use inputs dependent on target (default)\"}1"}],"structureCombo":[{"value":"pcChoice","displayValue":"Parent-child  Bayesian network (default)","keys":["pcChoice","pcChoice","Parent-child  Bayesian network (default)"],"label":"Parent-child  Bayesian network (default)","baseid":"{\"value\":\"pcChoice\",\"label\":\"Parent-child  Bayesian network (default)\"}","id":"{\"value\":\"pcChoice\",\"label\":\"Parent-child  Bayesian network (default)\"}1"}],"structureSelector":[{"value":"pcChoice","displayValue":"Parent-child  Bayesian network (default)","keys":["pcChoice","pcChoice","Parent-child  Bayesian network (default)"],"label":"Parent-child  Bayesian network (default)","baseid":"{\"value\":\"pcChoice\",\"label\":\"Parent-child  Bayesian network (default)\"}","id":"{\"value\":\"pcChoice\",\"label\":\"Parent-child  Bayesian network (default)\"}1"}],"maxParents":5,"bestOneRadio":"0","parentingAlgorithm":"bestSetRadio","bestSetRadio":"1","parentingSelector":[{"value":"bestSetChoice","displayValue":"Use the best set of variables (default)","keys":["bestSetChoice","bestSetChoice","Use the best set of variables (default)"],"label":"Use the best set of variables (default)","baseid":"{\"value\":\"bestSetChoice\",\"label\":\"Use the best set of variables (default)\"}","id":"{\"value\":\"bestSetChoice\",\"label\":\"Use the best set of variables (default)\"}1"}],"varselectCombo":[{"value":"varselect1Choice","displayValue":"Use inputs that are dependent on the target given any other input (default)","keys":["varselect1Choice","varselect1Choice","Use inputs that are dependent on the target given any other input (default)"],"label":"Use inputs that are dependent on the target given any other input (default)","baseid":"{\"value\":\"varselect1Choice\",\"label\":\"Use inputs that are dependent on the target given any other input (default)\"}","id":"{\"value\":\"varselect1Choice\",\"label\":\"Use inputs that are dependent on the target given any other input (default)\"}1"}],"varselectSelector":[{"value":"varselect1Choice","displayValue":"Use inputs that are dependent on the target given any other input (default)","keys":["varselect1Choice","varselect1Choice","Use inputs that are dependent on the target given any other input (default)"],"label":"Use inputs that are dependent on the target given any other input (default)","baseid":"{\"value\":\"varselect1Choice\",\"label\":\"Use inputs that are dependent on the target given any other input (default)\"}","id":"{\"value\":\"varselect1Choice\",\"label\":\"Use inputs that are dependent on the target given any other input (default)\"}1"}],"indepTestCombo":[{"value":"chiGsquareChoice","displayValue":"Chi-square and G-square statistics (default)","keys":["chiGsquareChoice",null,"Chi-square and G-square statistics (default)"],"label":"Chi-square and G-square statistics (default)","baseid":"{\"value\":\"chiGsquareChoice\",\"label\":\"Chi-square and G-square statistics (default)\"}","id":"{\"value\":\"chiGsquareChoice\",\"label\":\"Chi-square and G-square statistics (default)\"}1"}],"alpha":[{"value":"alpha_05","displayValue":"0.05 (default)","keys":["alpha_05",null,"0.05 (default)"],"label":"0.05 (default)","baseid":"{\"value\":\"alpha_05\",\"label\":\"0.05 (default)\"}","id":"{\"value\":\"alpha_05\",\"label\":\"0.05 (default)\"}1"}],"alphaValue":"","pdPlot":"0","icePlot":"0","pdCombo":[{"value":"intervalPD","displayValue":"Interval input","keys":["intervalPD",null,"Interval input"],"label":"Interval input","baseid":"{\"value\":\"intervalPD\",\"label\":\"Interval input\"}","id":"{\"value\":\"intervalPD\",\"label\":\"Interval input\"}1"}],"pdPlotVar1":"","pdBins":10,"pdPlotVar2":"","pdMaxlev":10,"outPredDS":"0","outPredDSName":{"value":"","cbSelected":false},"includeAllVars":"0","includeVars":"includeNoVars","includeSelectedVars":"0","includeAnalysisVars":"0","includeNoVars":"1","outFitDS":"0","outFitDSName":{"value":"work._fitstats_","cbSelected":false},"outNetworkDS":"0","outNetworkDSName":{"value":"work._netstruct_","cbSelected":false},"outValidinfoDS":"0","outValidinfoDSName":{"value":"work._validation_","cbSelected":false},"outVarinfoDS":"0","outVarinfoDSName":{"value":"work._varinfo_","cbSelected":false},"outVarlevelDS":"0","outVarlevelDSName":{"value":"work._varlevels_","cbSelected":false},"outVarorderDS":"0","outVarorderDSName":{"value":"work._varorder_","cbSelected":false},"outVarselectDS":"0","outVarselectDSName":{"value":"work._varselect_","cbSelected":false},"outAstoreDS":"0","outAstoreDSName":{"value":"","cbSelected":false},"scoreCode":"0","scoringCodeFileName":{"path":"/Users/z5482396@ad.unsw.edu.au/My Folder","name":"score.sas","fullPath":"/Users/z5482396@ad.unsw.edu.au/My Folder/score.sas","pathLocation":"sascontent","pathUri":"sascontent:/folders/folders/0a75dbe8-cc39-4288-ba69-9cfb4e44a900"}}
+]]>
+</TemplateValues>
+
+</Task>
