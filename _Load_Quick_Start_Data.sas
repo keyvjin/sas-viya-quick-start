@@ -25,16 +25,10 @@
 
     %else %do;
         
-		filename data TEMP;
-        %put NOTE: HOME_EQUITY in-memory table loaded from home_equity.csv on support.sas.com;
-		proc http 
-		   method="GET" 
-		   url="https://support.sas.com/documentation/onlinedoc/viya/exampledatasets/home_equity.csv" 
-		   out=data;
-		run;
+        %put NOTE: HOME_EQUITY in-memory table loaded from home_equity.csv;
 		
 		/*  Import home_equity.csv and create HOMEEQUITY.sas7bdat in quick-start folder */
-		proc import file="data" dbms=csv out=outlib.home_equity replace;
+		proc import file="&path/home_equity.csv" dbms=csv out=outlib.home_equity replace;
 		    guessingrows=5960;
 		run;
 		
@@ -65,28 +59,16 @@
 		           BAD CITY CLNO DELINQ DEROG DIVISION JOB NINQ REASON REGION STATE YOJ;
 		    attrib _all_ informat=;
 		quit;
-                proc copy out=work in=outlib;
+        proc copy out=work in=outlib;
 		    select home_equity;
-                run;
+        run;
 		
-		filename data clear;	
-
     %end;
 
-    /* Create copy of CUSTOMER in quick-start folder */
-
-	filename data TEMP;
-	proc http 
-	   method="GET" 
-	   url="https://support.sas.com/documentation/onlinedoc/viya/exampledatasets/customer.csv" 
-	   out=data;
-	run;
-	
 	/*  Import customer.csv and create CUSTOMER.sas7bdat in quick-start folder */
-	proc import file="data" dbms=csv out=outlib.customer replace;
+	proc import file="&path/customer.csv" dbms=csv out=outlib.customer replace;
 	    guessingrows=10000;
 	run;	
-    filename data clear;
 
     /*  Load and promote HOME_EQUITY and CUSTOMER into memory in the CASUSER caslib. */
     /*  Save HOME_EQUITY.sashdat in the CASUSER caslib so it is saved on disk.  */
